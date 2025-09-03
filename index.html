@@ -171,15 +171,15 @@
                     <div class="card p-6 rounded-lg shadow-md">
                         <h3 class="font-semibold text-lg mb-4">Financial Literacy</h3>
                         <div class="space-y-3">
-                            <label class="flex items-center"><input type="checkbox" id="metric-budget" onchange="updateProgress()" class="h-4 w-4 rounded border-gray-300 text-amber-600 focus:ring-amber-500"> <span class="ml-2 text-sm">Complete a monthly budget plan</span></label>
-                            <label class="flex items-center"><input type="checkbox" id="metric-rrsp" onchange="updateProgress()" class="h-4 w-4 rounded border-gray-300 text-amber-600 focus:ring-amber-500"> <span class="ml-2 text-sm">Actively manage RRSP</span></label>
+                            <label class="flex items-center"><input type="checkbox" id="metric-budget" class="h-4 w-4 rounded border-gray-300 text-amber-600 focus:ring-amber-500"> <span class="ml-2 text-sm">Complete a monthly budget plan</span></label>
+                            <label class="flex items-center"><input type="checkbox" id="metric-rrsp" class="h-4 w-4 rounded border-gray-300 text-amber-600 focus:ring-amber-500"> <span class="ml-2 text-sm">Actively manage RRSP</span></label>
                         </div>
                     </div>
                      <div class="card p-6 rounded-lg shadow-md">
                         <h3 class="font-semibold text-lg mb-4">Crochet</h3>
                         <div class="space-y-3">
-                            <label class="flex items-center"><input type="checkbox" id="metric-crochet-short" onchange="updateProgress()" class="h-4 w-4 rounded border-gray-300 text-amber-600 focus:ring-amber-500"> <span class="ml-2 text-sm">Complete short-form project</span></label>
-                            <label class="flex items-center"><input type="checkbox" id="metric-crochet-long" onchange="updateProgress()" class="h-4 w-4 rounded border-gray-300 text-amber-600 focus:ring-amber-500"> <span class="ml-2 text-sm">Complete long-form project</span></label>
+                            <label class="flex items-center"><input type="checkbox" id="metric-crochet-short" class="h-4 w-4 rounded border-gray-300 text-amber-600 focus:ring-amber-500"> <span class="ml-2 text-sm">Complete short-form project</span></label>
+                            <label class="flex items-center"><input type="checkbox" id="metric-crochet-long" class="h-4 w-4 rounded border-gray-300 text-amber-600 focus:ring-amber-500"> <span class="ml-2 text-sm">Complete long-form project</span></label>
                         </div>
                     </div>
                     <div class="card p-6 rounded-lg shadow-md md:col-span-2">
@@ -187,21 +187,21 @@
                         <div class="space-y-4">
                             <div>
                                 <label for="metric-idiot" class="block text-sm font-medium mb-1">The Idiot Progress: <span id="idiot-percent">0%</span></label>
-                                <input type="range" id="metric-idiot" min="0" max="100" value="0" oninput="updateProgress()" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                                <input type="range" id="metric-idiot" min="0" max="100" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
                             </div>
                             <div>
                                 <label for="metric-anna" class="block text-sm font-medium mb-1">Anna Karenina Progress (Goal: 50%): <span id="anna-percent">0%</span></label>
-                                <input type="range" id="metric-anna" min="0" max="100" value="0" oninput="updateProgress()" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                                <input type="range" id="metric-anna" min="0" max="100" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
                             </div>
                         </div>
                     </div>
                     <div class="card p-6 rounded-lg shadow-md md:col-span-2">
                          <h3 class="font-semibold text-lg mb-4">Korean</h3>
                          <div class="space-y-4">
-                            <label class="flex items-center"><input type="checkbox" id="metric-korean-read-write" onchange="updateProgress()" class="h-4 w-4 rounded border-gray-300 text-amber-600 focus:ring-amber-500"> <span class="ml-2 text-sm">Can read/write basic Korean</span></label>
+                            <label class="flex items-center"><input type="checkbox" id="metric-korean-read-write" class="h-4 w-4 rounded border-gray-300 text-amber-600 focus:ring-amber-500"> <span class="ml-2 text-sm">Can read/write basic Korean</span></label>
                             <div>
                                 <label for="metric-korean-app" class="block text-sm font-medium mb-1">Language App Level 1 Progress: <span id="korean-app-percent">0%</span></label>
-                                <input type="range" id="metric-korean-app" min="0" max="100" value="0" oninput="updateProgress()" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                                <input type="range" id="metric-korean-app" min="0" max="100" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
                             </div>
                         </div>
                     </div>
@@ -332,6 +332,35 @@
         let progressChart;
         const totalMetrics = 8; 
 
+        function saveState() {
+            const state = {
+                budget: document.getElementById('metric-budget').checked,
+                rrsp: document.getElementById('metric-rrsp').checked,
+                crochetShort: document.getElementById('metric-crochet-short').checked,
+                crochetLong: document.getElementById('metric-crochet-long').checked,
+                koreanReadWrite: document.getElementById('metric-korean-read-write').checked,
+                idiot: document.getElementById('metric-idiot').value,
+                anna: document.getElementById('metric-anna').value,
+                koreanApp: document.getElementById('metric-korean-app').value
+            };
+            localStorage.setItem('curriculumProgress', JSON.stringify(state));
+        }
+
+        function loadState() {
+            const savedState = localStorage.getItem('curriculumProgress');
+            if (savedState) {
+                const state = JSON.parse(savedState);
+                document.getElementById('metric-budget').checked = state.budget;
+                document.getElementById('metric-rrsp').checked = state.rrsp;
+                document.getElementById('metric-crochet-short').checked = state.crochetShort;
+                document.getElementById('metric-crochet-long').checked = state.crochetLong;
+                document.getElementById('metric-korean-read-write').checked = state.koreanReadWrite;
+                document.getElementById('metric-idiot').value = state.idiot;
+                document.getElementById('metric-anna').value = state.anna;
+                document.getElementById('metric-korean-app').value = state.koreanApp;
+            }
+        }
+
         function updateProgress() {
             let completedMetrics = 0;
             
@@ -370,6 +399,8 @@
             progressChart.data.datasets[0].data[1] = 100 - percentage;
             progressChart.options.plugins.title.text = `${Math.round(percentage)}% Complete`;
             progressChart.update();
+            
+            saveState();
         }
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -405,7 +436,14 @@
                     }
                 }
             });
+
+            loadState();
             updateProgress();
+
+            const allInputs = document.querySelectorAll('#progress input[type="checkbox"], #progress input[type="range"]');
+            allInputs.forEach(input => {
+                input.addEventListener('change', updateProgress);
+            });
 
             const day = new Date().getDay();
             const table = document.getElementById('schedule-table');
