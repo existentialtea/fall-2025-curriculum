@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fall 2025 Personal Curriculum Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Linen & Soft Amber -->
+    <!-- Application Structure Plan: The application is designed as an interactive dashboard with four main sections: Goals, Subjects, Weekly Schedule, and Progress Tracking. This structure was chosen to logically separate the core components of the curriculum plan, allowing the user to view their high-level objectives, explore subject details, see their weekly commitment, and actively track their achievements all on one page. Navigation buttons provide quick scrolling access to each section. This dashboard approach is more user-friendly and engaging than a static document, transforming the plan from a simple reference into a live tool for motivation and management. -->
+    <!-- Visualization & Content Choices: Goals are presented as simple, clear cards for quick comprehension. Subjects use an interactive card grid; clicking a card reveals detailed topics and resources in a modal, keeping the main interface clean (Goal: Organize/Inform, Method: HTML/CSS/JS). The Weekly Schedule is a visual grid where the current day is dynamically highlighted to provide immediate context (Goal: Inform, Method: HTML/CSS/JS). The Progress Tracking section is the most interactive, using checklists for binary tasks, and dynamic progress bars for quantifiable goals like reading. An overall progress doughnut chart, powered by Chart.js, synthesizes all metrics into a single, motivating visual (Goal: Inform/Change, Method: Chart.js/Canvas, HTML/CSS/JS). This combination of elements provides both at-a-glance summaries and detailed, interactive views, supporting the user's journey through their self-directed semester. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #FDFBF7; /* Warm Linen */
+            color: #4A4A4A;
+        }
+        .nav-button {
+            transition: all 0.3s ease;
+        }
+        .nav-button.active {
+            background-color: #D4A056; /* Soft Amber */
+            color: #FFFFFF;
+            font-weight: 600;
+        }
+        .card {
+            background-color: #FFFFFF;
+            border: 1px solid #F0EAE2;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+        }
+        .progress-bar-bg {
+            background-color: #F0EAE2;
+        }
+        .progress-bar-fill {
+            background-color: #D4A056; /* Soft Amber */
+            transition: width 0.5s ease-in-out;
+        }
+        .subject-card {
+            cursor: pointer;
+        }
+        .modal {
+            display: none;
+            transition: opacity 0.3s ease;
+        }
+        .modal-content {
+            transform: scale(0.95);
+            transition: transform 0.3s ease;
+        }
+        .modal.flex {
+            display: flex;
+        }
+        .modal-active .modal-content {
+            transform: scale(1);
+        }
+        .schedule-highlight {
+            background-color: #FFF9F0;
+            border: 2px solid #D4A056;
+        }
+        .schedule-header-highlight {
+            background-color: #D4A056;
+            color: white;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 350px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header class="bg-white shadow-sm sticky top-0 z-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <h1 class="text-3xl font-bold text-center text-gray-800">My Fall 2025 Personal Curriculum</h1>
+            <p class="text-center text-gray-500 mt-1">An interactive dashboard to track your learning journey.</p>
+        </div>
+    </header>
+    
+    <nav class="bg-amber-50 border-b border-t border-amber-200 py-2 sticky top-[88px] z-10">
+        <div class="max-w-3xl mx-auto flex justify-center space-x-2 sm:space-x-4">
+            <button onclick="scrollToSection('goals')" class="nav-button px-3 py-2 text-sm sm:text-base rounded-md font-medium text-amber-800 hover:bg-amber-100">Goals</button>
+            <button onclick="scrollToSection('subjects')" class="nav-button px-3 py-2 text-sm sm:text-base rounded-md font-medium text-amber-800 hover:bg-amber-100">Subjects</button>
+            <button onclick="scrollToSection('schedule')" class="nav-button px-3 py-2 text-sm sm:text-base rounded-md font-medium text-amber-800 hover:bg-amber-100">Schedule</button>
+            <button onclick="scrollToSection('progress')" class="nav-button px-3 py-2 text-sm sm:text-base rounded-md font-medium text-amber-800 hover:bg-amber-100">Progress</button>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+
+        <section id="goals" class="mb-16 scroll-mt-32">
+            <h2 class="text-2xl font-bold text-center mb-8">Semester Goals</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div class="card p-6 rounded-lg shadow-md text-center">
+                    <div class="text-4xl mb-4">💰</div>
+                    <h3 class="font-semibold text-lg mb-2">Financial Literacy</h3>
+                    <p class="text-gray-600 text-sm">Become financially literate by learning to budget and beginning to invest, with a focus on managing my RRSP.</p>
+                </div>
+                <div class="card p-6 rounded-lg shadow-md text-center">
+                    <div class="text-4xl mb-4">🇰🇷</div>
+                    <h3 class="font-semibold text-lg mb-2">Learn Korean</h3>
+                    <p class="text-gray-600 text-sm">Become conversational in Korean and be able to read and write in Hangul.</p>
+                </div>
+                <div class="card p-6 rounded-lg shadow-md text-center">
+                    <div class="text-4xl mb-4">🧶</div>
+                    <h3 class="font-semibold text-lg mb-2">Learn Crochet</h3>
+                    <p class="text-gray-600 text-sm">Be able to crochet basic items and read simple patterns.</p>
+                </div>
+                <div class="card p-6 rounded-lg shadow-md text-center">
+                    <div class="text-4xl mb-4">📚</div>
+                    <h3 class="font-semibold text-lg mb-2">Russian Literature</h3>
+                    <p class="text-gray-600 text-sm">Read "The Idiot" and "Anna Karenina" and understand their context and themes.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="subjects" class="mb-16 scroll-mt-32">
+            <h2 class="text-2xl font-bold text-center mb-8">Subject Areas</h2>
+            <p class="text-center text-gray-500 max-w-2xl mx-auto mb-10">This section outlines the specific topics and resources for each area of study. Click on any subject card to view more details about the learning plan, including key topics to cover and the primary resources you'll be using.</p>
+            <div id="subject-grid" class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            </div>
+        </section>
+
+        <section id="schedule" class="mb-16 scroll-mt-32">
+            <h2 class="text-2xl font-bold text-center mb-8">Weekly Schedule</h2>
+            <p class="text-center text-gray-500 max-w-2xl mx-auto mb-10">Here is your dedicated study schedule for the week. Consistency is key to progress. The current day is highlighted to help you stay on track with your learning commitments.</p>
+            <div class="card rounded-lg shadow-md overflow-x-auto">
+                <table id="schedule-table" class="w-full text-sm text-left">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-3 font-medium text-gray-600">Time</th>
+                            <th class="px-4 py-3 font-medium text-gray-600">Monday</th>
+                            <th class="px-4 py-3 font-medium text-gray-600">Tuesday</th>
+                            <th class="px-4 py-3 font-medium text-gray-600">Wednesday</th>
+                            <th class="px-4 py-3 font-medium text-gray-600">Thursday</th>
+                            <th class="px-4 py-3 font-medium text-gray-600">Friday</th>
+                            <th class="px-4 py-3 font-medium text-gray-600">Saturday</th>
+                            <th class="px-4 py-3 font-medium text-gray-600">Sunday</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        <tr>
+                            <td class="px-4 py-3 font-medium">10:00 - 11:00 AM</td><td></td><td></td><td></td><td></td><td></td><td class="px-4 py-3">Korean</td><td class="px-4 py-3">Crochet</td>
+                        </tr>
+                        <tr>
+                            <td class="px-4 py-3 font-medium">1:00 - 2:00 PM</td><td></td><td></td><td></td><td></td><td></td><td class="px-4 py-3">Financial Lit.</td><td class="px-4 py-3">Financial Lit.</td>
+                        </tr>
+                        <tr>
+                            <td class="px-4 py-3 font-medium">7:00 - 8:00 PM</td><td class="px-4 py-3">Russian Lit.</td><td class="px-4 py-3">Korean</td><td class="px-4 py-3">Korean</td><td class="px-4 py-3">Crochet</td><td class="px-4 py-3">Russian Lit.</td><td class="px-4 py-3">Korean</td><td></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="progress" class="scroll-mt-32">
+            <h2 class="text-2xl font-bold text-center mb-8">Progress Tracking & Evaluation</h2>
+            <p class="text-center text-gray-500 max-w-2xl mx-auto mb-10">This is your command center for tracking progress. Update your achievements here to see your overall progress update in real-time. Celebrating small wins builds momentum for the entire semester!</p>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+                <div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="card p-6 rounded-lg shadow-md">
+                        <h3 class="font-semibold text-lg mb-4">Financial Literacy</h3>
+                        <div class="space-y-3">
+                            <label class="flex items-center"><input type="checkbox" id="metric-budget" onchange="updateProgress()" class="h-4 w-4 rounded border-gray-300 text-amber-600 focus:ring-amber-500"> <span class="ml-2 text-sm">Complete a monthly budget plan</span></label>
+                            <label class="flex items-center"><input type="checkbox" id="metric-rrsp" onchange="updateProgress()" class="h-4 w-4 rounded border-gray-300 text-amber-600 focus:ring-amber-500"> <span class="ml-2 text-sm">Actively manage RRSP</span></label>
+                        </div>
+                    </div>
+                     <div class="card p-6 rounded-lg shadow-md">
+                        <h3 class="font-semibold text-lg mb-4">Crochet</h3>
+                        <div class="space-y-3">
+                            <label class="flex items-center"><input type="checkbox" id="metric-crochet-short" onchange="updateProgress()" class="h-4 w-4 rounded border-gray-300 text-amber-600 focus:ring-amber-500"> <span class="ml-2 text-sm">Complete short-form project</span></label>
+                            <label class="flex items-center"><input type="checkbox" id="metric-crochet-long" onchange="updateProgress()" class="h-4 w-4 rounded border-gray-300 text-amber-600 focus:ring-amber-500"> <span class="ml-2 text-sm">Complete long-form project</span></label>
+                        </div>
+                    </div>
+                    <div class="card p-6 rounded-lg shadow-md md:col-span-2">
+                        <h3 class="font-semibold text-lg mb-4">Classic Russian Literature</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label for="metric-idiot" class="block text-sm font-medium mb-1">The Idiot Progress: <span id="idiot-percent">0%</span></label>
+                                <input type="range" id="metric-idiot" min="0" max="100" value="0" oninput="updateProgress()" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                            </div>
+                            <div>
+                                <label for="metric-anna" class="block text-sm font-medium mb-1">Anna Karenina Progress (Goal: 50%): <span id="anna-percent">0%</span></label>
+                                <input type="range" id="metric-anna" min="0" max="100" value="0" oninput="updateProgress()" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card p-6 rounded-lg shadow-md md:col-span-2">
+                         <h3 class="font-semibold text-lg mb-4">Korean</h3>
+                         <div class="space-y-4">
+                            <label class="flex items-center"><input type="checkbox" id="metric-korean-read-write" onchange="updateProgress()" class="h-4 w-4 rounded border-gray-300 text-amber-600 focus:ring-amber-500"> <span class="ml-2 text-sm">Can read/write basic Korean</span></label>
+                            <div>
+                                <label for="metric-korean-app" class="block text-sm font-medium mb-1">Language App Level 1 Progress: <span id="korean-app-percent">0%</span></label>
+                                <input type="range" id="metric-korean-app" min="0" max="100" value="0" oninput="updateProgress()" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card p-6 rounded-lg shadow-md">
+                    <h3 class="font-semibold text-lg mb-4 text-center">Overall Progress</h3>
+                    <div class="chart-container">
+                        <canvas id="progressChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+    
+    <div id="subjectModal" class="modal fixed inset-0 bg-black bg-opacity-50 items-center justify-center p-4 z-30">
+        <div class="modal-content card max-w-lg w-full p-8 rounded-xl shadow-2xl relative">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">&times;</button>
+            <h3 id="modalTitle" class="text-2xl font-bold mb-4"></h3>
+            <div class="space-y-4">
+                <div>
+                    <h4 class="font-semibold text-md mb-2">Key Topics:</h4>
+                    <ul id="modalTopics" class="list-disc list-inside text-gray-600 text-sm space-y-1"></ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-md mb-2">Primary Resources:</h4>
+                    <ul id="modalResources" class="list-disc list-inside text-gray-600 text-sm space-y-1"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        const subjectData = [
+            { 
+                title: "Financial Literacy", 
+                emoji: "💰",
+                topics: ["Budgeting & saving strategies", "Understanding different types of accounts", "Introduction to stocks and investing basics"],
+                resources: ["\"I Will Teach You To Be Rich\" by Ramit Sethi", "\"The Simple Path to Wealth\" by J.L. Collins", "Khan Academy Personal Finance courses"]
+            },
+            { 
+                title: "Learning Korean", 
+                emoji: "🇰🇷",
+                topics: ["Learn Hangul (the alphabet)", "Basic conversational phrases", "Essential vocabulary & grammar"],
+                resources: ["Talk To Me In Korean (website & books)", "Duolingo or Memrise (apps)", "\"Korean Grammar in Use\" series"]
+            },
+            { 
+                title: "Learning Crochet", 
+                emoji: "🧶",
+                topics: ["How to hold the hook and yarn", "Basic stitches (chain, single crochet, double crochet)", "Reading simple patterns"],
+                resources: ["YouTube channels like Bella Coco Crochet or The Crochet Crowd", "Websites like AllFreeCrochet.com", "\"Crochet for Beginners\" book"]
+            },
+            { 
+                title: "Classic Russian Literature",
+                emoji: "📚",
+                topics: ["Close reading of \"The Idiot\" and \"Anna Karenina\"", "Study the historical context of each novel", "Analyze key themes like love, society, and philosophy"],
+                resources: ["\"The Idiot\" by Fyodor Dostoevsky", "\"Anna Karenina\" by Leo Tolstoy", "Online literary analysis sites (e.g., LitCharts, SparkNotes)", "Academic articles on Dostoevsky and Tolstoy"]
+            }
+        ];
+
+        const subjectGrid = document.getElementById('subject-grid');
+        subjectData.forEach(subject => {
+            const card = document.createElement('div');
+            card.className = 'card subject-card p-6 rounded-lg shadow-md flex items-center space-x-4';
+            card.onclick = () => openModal(subject);
+            card.innerHTML = `
+                <div class="text-4xl">${subject.emoji}</div>
+                <div>
+                    <h3 class="font-semibold text-lg">${subject.title}</h3>
+                    <p class="text-sm text-amber-600">Click to see details</p>
+                </div>
+            `;
+            subjectGrid.appendChild(card);
+        });
+
+        const modal = document.getElementById('subjectModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalTopics = document.getElementById('modalTopics');
+        const modalResources = document.getElementById('modalResources');
+
+        function openModal(subject) {
+            modalTitle.textContent = subject.title;
+            modalTopics.innerHTML = subject.topics.map(topic => `<li>${topic}</li>`).join('');
+            modalResources.innerHTML = subject.resources.map(res => `<li>${res}</li>`).join('');
+            modal.classList.add('flex', 'modal-active');
+        }
+
+        function closeModal() {
+            modal.classList.remove('modal-active');
+            setTimeout(() => modal.classList.remove('flex'), 300);
+        }
+        
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
+
+        function scrollToSection(id) {
+            document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        const sections = document.querySelectorAll('section');
+        const navButtons = document.querySelectorAll('.nav-button');
+        
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.5
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    navButtons.forEach(button => {
+                        button.classList.toggle('active', button.getAttribute('onclick').includes(entry.target.id));
+                    });
+                }
+            });
+        }, observerOptions);
+
+        sections.forEach(section => {
+            observer.observe(section);
+        });
+        
+        let progressChart;
+        const totalMetrics = 8; 
+
+        function updateProgress() {
+            let completedMetrics = 0;
+            
+            const budget = document.getElementById('metric-budget').checked;
+            const rrsp = document.getElementById('metric-rrsp').checked;
+            if (budget) completedMetrics++;
+            if (rrsp) completedMetrics++;
+
+            const crochetShort = document.getElementById('metric-crochet-short').checked;
+            const crochetLong = document.getElementById('metric-crochet-long').checked;
+            if (crochetShort) completedMetrics++;
+            if (crochetLong) completedMetrics++;
+            
+            const koreanReadWrite = document.getElementById('metric-korean-read-write').checked;
+            if(koreanReadWrite) completedMetrics++;
+
+            const idiotSlider = document.getElementById('metric-idiot');
+            const idiotPercent = document.getElementById('idiot-percent');
+            idiotPercent.textContent = `${idiotSlider.value}%`;
+            completedMetrics += idiotSlider.value / 100;
+            
+            const annaSlider = document.getElementById('metric-anna');
+            const annaPercent = document.getElementById('anna-percent');
+            annaPercent.textContent = `${annaSlider.value}%`;
+            completedMetrics += (annaSlider.value / 100) * 0.5;
+            
+            const koreanAppSlider = document.getElementById('metric-korean-app');
+            const koreanAppPercent = document.getElementById('korean-app-percent');
+            koreanAppPercent.textContent = `${koreanAppSlider.value}%`;
+            completedMetrics += koreanAppSlider.value / 100;
+
+            const totalPossible = 2 + 2 + 1 + 1 + 0.5 + 1;
+            const percentage = (completedMetrics / totalPossible) * 100;
+
+            progressChart.data.datasets[0].data[0] = percentage;
+            progressChart.data.datasets[0].data[1] = 100 - percentage;
+            progressChart.options.plugins.title.text = `${Math.round(percentage)}% Complete`;
+            progressChart.update();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const ctx = document.getElementById('progressChart').getContext('2d');
+            progressChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Completed', 'Remaining'],
+                    datasets: [{
+                        data: [0, 100],
+                        backgroundColor: ['#D4A056', '#F0EAE2'],
+                        borderColor: ['#FFFFFF'],
+                        borderWidth: 4,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '70%',
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { enabled: false },
+                        title: {
+                            display: true,
+                            text: '0% Complete',
+                            position: 'top',
+                            align: 'center',
+                            font: { size: 18, weight: 'bold' },
+                            color: '#4A4A4A',
+                            padding: { top: 10, bottom: 30 }
+                        }
+                    }
+                }
+            });
+            updateProgress();
+
+            const day = new Date().getDay();
+            const table = document.getElementById('schedule-table');
+            const dayIndex = (day === 0) ? 7 : day;
+            
+            const headerCells = table.querySelectorAll('thead th');
+            if (headerCells[dayIndex]) {
+                headerCells[dayIndex].classList.add('schedule-header-highlight');
+            }
+            
+            const bodyRows = table.querySelectorAll('tbody tr');
+            bodyRows.forEach(row => {
+                const cell = row.children[dayIndex];
+                if (cell) {
+                    cell.classList.add('schedule-highlight');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
